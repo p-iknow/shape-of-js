@@ -60,3 +60,5 @@ a === b // true
 const keys = ['ADD_TOD', 'DELETE_TODO'];
 const Constants = {};
 keys.forEach(v => {Constants[Symbol.for(v)] = v})
+
+//표준 심볼
