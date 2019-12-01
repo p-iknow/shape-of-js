@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <link rel="stylesheet" href="./style.css">
+  <style>
+    .outer {
+      width: auto;
+      height: auto;
+      border: 1px solid black;
+      margin-bottom: 40px;
+    }
+
+    p {
+      margin: 10px
+    }
+
+    .parent {
+      width: 200px;
+      height: 200px;
+      background: yellow;
+      margin: 100px;
+    }
+
+    .absolute {
+      position: absolute;
+      width: 100px;
+      height: 100px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="outer">
+    <h2>Absolute</h2>
+    <p>
+      absolute는 offset parent 로 부터의 거리를 설정한다.
+      absolute 요소에 top, bottom, left, right 값을 주지 않았을 때
+      <br>
+      기본 값은 static 이었을 때와 같다.
+      <br>
+      이것이 붉은 박스가 static 에 위치하고 있는 이유다.
+      <br>
+      left, top을 normal flow 로 그려지는 static 에 쓰면 무시된다.
+
+      absolute 인 상태에서 float 속성을 주면 어떻게 될까?
+      무시된다. float는 normal flow 일 때만 성립한다. 왜?
+      new BFC 를 만드는 것은 normal flow 일때 가능하다.
+
+    </p>
+    <div class="parent">
+      <div class="absolute" style="background: red;"></div>
+      <div class="absolute" style="left: 0; background:blue;"></div>
+      <div class="absolute" style="left: 0; top: 0; background: plum;"></div>
+    </div>
+
+  </div>
+</body>
+</body>
+
+</html>

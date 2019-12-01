@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <link rel="stylesheet" href="./style.css">
+  <style>
+    .outer {
+      width: auto;
+      height: auto;
+      border: 1px solid black;
+      margin-bottom: 40px;
+      padding: 20px;
+    }
+
+    p {
+      margin: 40px auto;
+    }
+
+    .inner {
+      width: 100px;
+      height: 100px;
+      padding: 10px;
+      border: 10px solid #000;
+      display: inline-block;
+    }
+
+    .box-shadow {
+      box-shadow: 0 0 0 10px #aa0;
+
+    }
+
+    .border-dashed {
+      border: 10px dashed black;
+    }
+
+    .relative {
+      position: relative;
+    }
+
+    .box-shadow_inset {
+      box-shadow: inset 0 0 0 10px #aa0;
+    }
+
+    .box-shadow_sandwich {
+      box-shadow: 0 0 0 10px #aa0, inset 0 0 0 10px #aa0;
+    }
+
+    .box-shadow_n-layer {
+      box-shadow:
+        0 0 0 10px #aa0,
+        0 0 0 20px #0a0,
+        inset 0 0 0 10px #aa0,
+        inset 0 0 0 20px #0a0;
+      /* 
+          10px 그리고 20px 그리면 덮어써야 하는거 아닌가? 
+           - 하지만 결과는 덮여쓰여지지 않음.
+           - 스택처럼 쌓여지기 때문에 반대로 그려진다. 
+           - 20px -> 10px 순으로 그려지게 된다. 
+         */
+    }
+
+    .circle {
+      border-radius: 50%;
+    }
+
+    @keyframes ani {
+      from {
+        transform: rotate(0);
+        box-shadow:
+          0 0 0 0px #aa0,
+          0 0 0 0px #0a0,
+          inset 0 0 0 0px #aa0,
+          inset 0 0 0 0px #0a0
+      }
+
+      to {
+        transform: rotate(360deg);
+        box-shadow:
+          0 0 0 10px #aa0,
+          0 0 0 20px #0a0,
+          inset 0 0 0 10px #aa0,
+          inset 0 0 0 20px #0a0
+      }
+    }
+
+    .ani {
+      animation: ani 0.4s linear alternate infinite
+    }
+  </style>
+</head>
+
+<body>
+  <div class="outer">
+    <h2>box-sizing</h2>
+    <div class="inner" style="background:red"></div>
+    <div class="inner" style="background:blue; box-sizing:border-box"></div>
+  </div>
+  <div class="outer">
+    <h2>box-shadow</h2>
+    <div class="inner border-dashed" style="background:red"></div>
+    <div class="inner border-dashed box-shadow " style="background:blue;"></div>
+    <!-- geometry(border) 를 그린 다음 repaint(box-shadow) 가 그려지기 때문에 box-shadow가 위에 옴 -->
+  </div>
+
+  <div class="outer">
+    <h2>box-shadow & Position Relative</h2>
+    <div class="inner border-dashed relative" style="background:red"></div>
+    <div class="inner border-dashed box-shadow " style="background:blue;"></div>
+    <!-- 모든 그림을 그린 뒤 relative 가 다시그렸기 때문에 relative box가 위에 그려짐 -->
+  </div>
+
+  <div class="outer">
+    <h2>box-shadow, inset</h2>
+    <div class="inner border-dashed" style="background:red"></div>
+    <div class="inner border-dashed box-shadow_inset " style="background:blue;"></div>
+  </div>
+
+  <div class="outer">
+    <h2>box-shadow, sandwich</h2>
+    <div class="inner border-dashed" style="background:red"></div>
+    <div class="inner border-dashed box-shadow_sandwich" style="background:blue;"></div>
+  </div>
+
+  <div class="outer">
+    <h2>box-shadow, N-Layer</h2>
+    <div class="inner border-dashed" style="background:red"></div>
+    <div class="inner border-dashed box-shadow_n-layer" style="background:blue;"></div>
+  </div>
+
+  <div class="outer">
+    <h2>box-shadow, N-Layer, border-radious 50%</h2>
+    <p>
+      boxshadow 는 border 의 형태를 따라간다
+    </p>
+    <div class="inner border-dashed" style="background:red"></div>
+    <div class="inner border-dashed box-shadow_n-layer circle" style="background:blue;"></div>
+  </div>
+  <div class="outer">
+    <h2>box-shadow, N-Layer, border-radious 50%, Animation</h2>
+    <p>`1
+      boxshadow 는 border 의 형태를 따라간다
+    </p>
+
+    <div class="inner border-dashed box-shadow_n-layer circle ani" style="background:blue;"></div>
+  </div>
+</body>
+</body>
+
+</html>
