@@ -1,0 +1,45 @@
+body {
+  margin: 40px;
+  background-color: #fff;
+  color: #444;
+  font: 1.4em Arial, sans-serif;
+}
+
+.outer {
+  border: 5px dotted rgb(214, 129, 137);
+  border-radius: 5px;
+  width: 450px;
+  padding: 10px;
+  margin-bottom: 40px;
+}
+
+.float {
+  padding: 10px;
+  border: 5px solid rgba(214, 129, 137, 0.4);
+  border-radius: 5px;
+  background-color: rgba(233, 78, 119, 0.4);
+  color: #fff;
+  float: left;
+  width: 200px;
+  margin: 0 20px 0 0;
+}
+
+.overflow {
+  overflow: hidden;
+  background: burlywood;
+}
+.absolute {
+  position: absolute;
+}
+
+.fixed {
+  position: fixed;
+}
+
+.blue {
+  background: blue;
+}
+
+.red {
+  background: red;
+}

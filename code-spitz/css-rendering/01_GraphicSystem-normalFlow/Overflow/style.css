@@ -1,0 +1,20 @@
+* {
+  color: white;
+}
+.left {
+  float: left;
+}
+
+.right {
+  float: right;
+}
+
+.hidden {
+  overflow: hidden;
+}
+
+.relative {
+  position: relative;
+  top: 20px;
+  left: 20px;
+}
