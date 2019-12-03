@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    .test {
+      animation: size 1s infinite alternate;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="test">
+    test
+  </div>
+
+  <script>
+    const Style = (() => {
+      // 캐쉬에 사용할 map
+      const prop = new Map;
+      const prefix = 'webkit,moz,chrome,o,khtml'.split(',');
+      const NONE = Symbol();
+      // 해당 속성이 브라우저에 존재하는지 누구에게 물어볼 것인가? 
+      // body.style 에 해당 속성이 없다면 그 속성은 해당 브라우저에 없는 것임 
+      const BASE = document.body.style;
+      // 표준 이름을 주면 브라우저가 지원하는 값으로 주는 함수
+      const getKey = key => {
+        // 계산된 값을 캐쉬해서 캐쉬가 있다면 캐쉬를 사용하자.
+        if (prop.has(key)) return prop.get(key);
+        // body.style에 있다면 그 키를 캐쉬에 저장 
+        if (key in BASE) prop.set(key, key);
+        else if (!prefix.some(v => {
+          // prefix를 붙인 속성은 존재하는가? 
+          const newKey = v + key[0].toUppercase() + key.substr(1);
+          if (newKey in BASE) {
+            prop.set(key, newKey);
+            key = newKey;
+            return true;
+          } else return false;
+        })) {
+          prop.set(key, NONE);
+          key = NONE; // 프리픽스 붙였음에도 없으면 없는 키!
+        }
+        return key;
+      }
+      return class {
+        constructor(style) {
+          this._style = style;
+        }
+        get(key) {
+          key = getKey(key);
+          if (key === NONE) return null;
+          return this._style[key];
+        }
+        set(key, val) {
+          key = getKey(key);
+          if (key !== NONE) {
+            this._style[key] = val;
+          }
+          return this;
+        }
+      }
+    })()
+
+    const Rule = class {
+      constructor(rule) {
+        this._rule = rule;
+        this._style = new Style(rule.style);
+      }
+      get(key) {
+        return this._style.get(key);
+      }
+      set(key, val) {
+        this._style.set(key, val);
+        return this;
+      }
+    }
+
+    const KeyFrameRule = class {
+      constructor(rule) {
+        this._keyframe = rule;
+        this._rules = new Map;
+      }
+      add(selector) {
+        const index = this._keyframe.cssRules.length;
+        this._keyframe.appendRule(`${selector}{}`);
+        const cssRule = this._keyframe.cssRules[index];
+        const rule = new Rule(cssRule);
+        this._rules.set(selector, rule);
+        return rule;
+      }
+
+      remove(selector) {
+        if (!this._rules.contains(selector)) return;
+        const rule = this._rules.get(selector)._rule;
+        Array.from(this._keyframe.cssRules).some((cssRule, index) => {
+          if (cssRule === rule._rule) {
+            this._keyframe.deleteRule(index); return true;
+          }
+        });
+      }
+    };
+
+    const Sheet = class {
+      constructor(sheet) {
+        this._sheet = sheet;
+        this._rules = new Map;
+      }
+      add(selector) {
+        const index = this._sheet.cssRules.length;
+        this._sheet.insertRule(`${selector}{}`, index);
+        const cssRule = this._sheet.cssRules[index];
+        let rule;
+        if (selector.startsWith('@keyframes')) {
+          rule = new KeyFrameRule(cssRule);
+        } else {
+          rule = new Rule(cssRule);
+        }
+        this._rules.set(selector, rule)
+        return rule
+      }
+      remove(selector) {
+        if (!this_rules.contains(selector)) return;
+        const rule = this._rules.get(selector);
+        Array.from(this._sheet.cssRules).some((cssRule, index) => {
+          if (cssRule === rule._rule) {
+            this._sheet.deleteRule(index);
+            return true;
+          }
+        })
+      }
+      get(selector) {
+        return this._rules.get(selector);
+      }
+    }
+
+    const sheet = new Sheet(document.styleSheets[0]);
+    sheet.add('body').set('background', "#f00");
+    sheet.add('.test').set('cssText', `
+        width: 200px;
+        border: 1px solid #fff;
+        color: #000;
+        background: #fff
+      `)
+
+    // const sheet = new Sheet(document.styleSheets[0]);
+    const size = sheet.add('@keyframes size');
+    size.add("from").set("width", "0");
+    size.add("to").set("width", "500px");
+
+  </script>
+</body>
+
+</html>

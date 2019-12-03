@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style id="s">
+    .outer {
+      background: #ff0
+    }
+
+    .box {
+      display: inline-block;
+      width: 200px;
+      height: 200px;
+      border: 1px dashed black;
+      line-height: 200px;
+      text-align: center;
+      color: grey;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="outer">
+    <div class="box red">red</div>
+    <div class="box blue">blue</div>
+  </div>
+  <script>
+    const el = document.querySelector('#s');
+    const sheet = el.sheet;
+    const rules = sheet.cssRules;
+    const rule = rules[1];
+
+    document.querySelector('.red').onclick = () => {
+      sheet.insertRule('.red{background:red}', rules.length);
+      sheet.insertRule('.blue{background:blue}', rules.length);
+    }
+
+    document.querySelector('.blue').onclick = () => {
+      sheet.deleteRule(rules.length - 1);
+      sheet.deleteRule(rules.length - 1);
+
+    }
+
+  </script>
+</body>
+
+</html>
