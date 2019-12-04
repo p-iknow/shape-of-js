@@ -1,0 +1,63 @@
+<!-- https://codepen.io/godotwait/pen/ZEYYqmd -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    @keyframes origin {
+      0% {
+        perspective-origin: 0% 50%
+      }
+
+      50% {
+        perspective-origin: 100% 50%
+      }
+
+      100% {
+        perspective-origin: 0% 50%
+      }
+    }
+
+    @keyframes spin {
+      100% {
+        transform: rotateX(360deg)
+      }
+    }
+
+    html,
+    body {
+      height: 100%;
+    }
+
+    body {
+      perspective: 500px;
+      background: #404040;
+      animation: origin 10s linear infinite
+    }
+
+    .test {
+      width: 500px;
+      height: 500px;
+      background: #aaa;
+      position: absolute;
+
+      /* position absolute 의 중앙정렬 */
+      left: 50%;
+      top: 50%;
+      margin-left: -250px;
+      margin-top: -250px;
+      /* animation: spin 10s linear infinite; */
+    }
+  </style>
+</head>
+
+<body>
+  <div class="test"></div>
+</body>
+
+</html>

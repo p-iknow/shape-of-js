@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+  <style>
+    @keyframes spin {
+      to {
+        transform: rotateY(360deg) rotateZ(360deg) rotateX(720deg)
+      }
+    }
+
+    html,
+    body {
+      height: 100%;
+    }
+
+    body {
+      perspective: 600px;
+      background: #404040
+    }
+
+    .ani {
+      animation: spin 4s linear infinite;
+    }
+
+    .drum {
+      background: url('http://keithclark.co.uk/labs/css-fps/drum2.png')
+    }
+  </style>
+</head>
+
+<body>
+  <script>
+    const El = class {
+      constructor() {
+        this.el = document.createElement("div");
+      }
+
+      set class(v) {
+        this.el.className = v;
+      }
+    };
+
+    // width
+    // height
+
+    // 3d 에서 이미지를 texture 라고 부름
+    // tx texture x - 이미지 안에서의 x 좌표
+    // ty texture y - 이미지 안에서의 y 좌표
+
+    // rotation x, y, z 회전시에 필요한 좌표값
+
+    const Face = class extends El {
+      constructor(w, h, x, y, z, rx, ry, rz, tx, ty) {
+        super();
+        this.el.style.cssText = `
+          position: absolute;
+          width: ${w}px;
+          height: ${h}px;
+          margin: -${h * 0.5}px 0 0 -${w * 0.5}px;
+          transform: translate3d(${x}px, ${y}px, ${z}px) rotateX(${rx}rad) rotateY(${ry}rad) rotateZ(${rz}rad);
+          background-position: -${tx}px ${ty}px;
+        `;
+        // margin 값의 이유 시작 지점(x,y)을 좌상단이 아닌 중아에 맞추기 위함
+      }
+    };
+
+    const Mesh = class mesh extends El {
+      constructor(l, t) {
+        super();
+        this.el.style.cssText = `
+          position:absolute; 
+          left:${l};
+          top:${t}; 
+          transform-style: preserve-3d;
+        `;
+      }
+
+      add(face) {
+        this.el.appendChild(face.el);
+        return face;
+      }
+    };
+
+    const mesh = new Mesh("50%", "50%");
+    const r = 100;
+    const height = 196;
+    const sides = 20;
+    const sideAngle = (Math.PI / sides) * 2;
+    const sideLen = r * Math.tan(Math.PI / sides);
+
+    for (let c = 0; c < sides; c++) {
+      const x = (Math.sin(sideAngle * c) * r) / 2;
+      const z = (Math.cos(sideAngle * c) * r) / 2;
+      const ry = Math.atan2(x, z);
+      const face = new Face(sideLen + 1, height, x, 0, z, 0, ry, 0, sideLen * c, 0);
+      face.class = "drum";
+      mesh.add(face);
+    }
+
+    const _top = new Face(100, 100, 0, -98, 0, Math.PI / 2, 0, 0, 0, 100);
+    const _bottom = new Face(100, 100, 0, 98, 0, -Math.PI / 2, 0, 0, 0, 100);
+
+    _top.class = "drum";
+    _bottom.class = "drum";
+    mesh.add(_top);
+    mesh.add(_bottom);
+    mesh.class = "ani";
+    document.body.appendChild(mesh.el);
+  </script>
+</body>
+
+</html>
