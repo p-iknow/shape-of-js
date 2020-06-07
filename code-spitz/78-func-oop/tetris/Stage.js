@@ -17,6 +17,11 @@ const Stage = class {
 			this.listener();
 		}
 	}
+
+	score(line) {
+		// prettier-ignore
+		return parseInt((this.curr * 5) * (2 ** line));
+	}
 };
 
 const stage = new Stage();
