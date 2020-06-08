@@ -6,4 +6,4 @@ const Data = class extends Array {
 	}
 };
 
-export default;
+export default Data;
