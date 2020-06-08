@@ -1,4 +1,4 @@
-import prop from './prop.js';
+import { prop } from './prop.js';
 
 const Stage = class {
 	constructor(last, min, max, listener) {
