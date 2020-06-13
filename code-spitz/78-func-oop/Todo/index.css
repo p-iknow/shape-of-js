@@ -1,0 +1,9 @@
+main > nav {
+	border-right: 1px solid #000;
+	float: left;
+	width: 200px;
+}
+
+main > section {
+	margin-left: 250px;
+}
