@@ -24,11 +24,15 @@ const Task = class {
 
 };
 
-let isOk = true;
-const task = new Task('test1');
-isOk = task.getInfo().title == 'test1' && task.getInfo().isCompleted == false;
-console.log('test1', isOk);
+() => {
+	let isOk = true;
+	const task = new Task('test1');
+	isOk = task.getInfo().title == 'test1' && task.getInfo().isCompleted == false;
+	console.log('test1', isOk);
 
-task.toggle();
-isOk = task.getInfo().title == 'test1' && task.getInfo().isCompleted == true;
-console.log('test2', isOk);
+	task.toggle();
+	isOk = task.getInfo().title == 'test1' && task.getInfo().isCompleted == true;
+	console.log('test2', isOk);
+}
+
+export default Task;
