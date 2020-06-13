@@ -2,6 +2,19 @@
 const TRUE = {}, FALSE = {};
 
 const Task = class {
+	static get(title) {
+		return new Task(title);
+	}
+
+	static load(json) {
+		const task = new Task(json.title, json.isCompleted);
+		return task;
+	}
+
+	toJSON() {
+		return this.getInfo();
+	}
+
 	constructor(title, isComplted = false) {
 		this.title = title;
 		this.isComplted = false;

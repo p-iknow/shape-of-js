@@ -1,9 +1,12 @@
-main > nav {
+main > .gnb {
+
+}
+main > .folders {
 	border-right: 1px solid #000;
 	float: left;
 	width: 200px;
 }
 
-main > section {
+main > .tasks {
 	margin-left: 250px;
 }

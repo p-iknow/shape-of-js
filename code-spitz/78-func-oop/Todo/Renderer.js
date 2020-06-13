@@ -18,102 +18,181 @@ const Renderer = class {
 const DomRenderer = class extends Renderer {
 	constructor(parent, app) {
 		super(app);
-		// body 에서 딱 한번만 나올 수 있는 tag
-		this.el = parent.appendChild(el('main'));
-		this.el.innerHTML = `
-			<nav>
-				<input type="text"/>
-				<ul></ul>
-			</nav>
-			<section>
-				<header>
-					<h2></h2>
-					<input type="text"/>
-				</header>
-				<ul></ul>
-			</section>
-		`;
+		this.$tasksMemory = [];
 
-		this.el.querySelector('nav').style.cssText = `
-			border-rigth: 1px solid #000;
-			float: left;
-			width: 200px;
-		` ;
+		const [$folders, $tasks] = Array.from(parent.querySelectorAll('ul'));
+		this.$folders = $folders;
+		this.$tasks = $tasks
 
-		this.el.querySelector('section').style.cssText = `
-			margin-left: 210px;
-		` ;
+		const [load, save] = Array.from(parent.querySelectorAll('button'));
+		load.onclick = e => {
+			const v = localStorage['todo'];
+			if (v) {
+				this.app = App.load(JSON.parse(v));
+				this.render();
+			}
 
-		const ul = this.el.querySelectorAll('ul');
-		this.folder = ul[0];
-		this.tasks = ul[1];
+
+		}
+		save.onclick = e => {
+			localStorage['todo'] = JSON.stringify(this.app)
+		}
+
+
 		this.currentFolder = null;
+		parent.querySelector('nav>input').onkeyup = e => {
 
-		const input = this.el.querySelectorAll('input');
-
-		input[0].addEventListener("keyup", e => {
-			if (!(e.keyCode == "13")) return;
+			if (!(e.code == "Enter")) return;
 			const v = e.target.value.trim();
 			if (!v) return;
 
-			const folder = new Folder(v);
+			const folder = Folder.get(v);
 			this.app.addFolder(folder);
 			e.target.value = '';
 			this.render();
-		})
+		}
 
 
-		input[1].addEventListener("keyup", e => {
-			if (!this.currentFolder || !(e.keyCode == "13")) return;
+		parent.querySelector('header>input').onkeyup = e => {
+			if (!this.currentFolder || !(e.code == "Enter")) return;
 			const v = e.target.value.trim();
 			if (!v) return;
 
-			const task = new Task(v);
+			const task = Task.get(v);
 			this.currentFolder.addTask(task);
 			e.target.value = '';
 			this.render();
-		})
+		}
 	}
 
 	_render() {
 		const folders = this.app.getFolders();
 		if (!this.currentFolder) this.currentFolder = folders[0];
 
-		this.folder.innerHTML = '';
+		let $moveTask;
+		let $oldFolder = this.$folders.firstElementChild;
+		let $lastFolder;
+
 		folders.forEach(folder => {
-			const li = el('li');
-			li.innerHTML = folder.getTitle();
+			let $folder;
+			if ($oldFolder) {
+				$folder = $oldFolder;
+				$oldFolder = $oldFolder.nextElementSibling;
+			} else {
+				$folder = el('li')
+				this.$folders.appendChild($folder);
+			}
+			$lastFolder = $folder;
+
+			$folder.innerHTML = folder.getTitle();
 			// 현재의 나의 currnt 와 일치하면
-			li.style.cssText = `
+			$folder.style.cssText = `
 				font-size: ${this.currentFolder == folder ? '20px' : '12px'};
 			`
-			li.addEventListener('click', () => {
+			$folder.onclick = () => {
 				this.currentFolder = folder;
 				this.render();
-			})
-			this.folder.appendChild(li);
+			};
+			$folder.ondrop = e => {
+				e.preventDefault();
+				folder.moveTask($moveTask, this.currentFolder);
+				this.render();
+			};
+
+			// drag & drop 할 때 항상 받는쪽에서 dragover 이벤트에 e.preventDefault 를 등록해야 drop 이벤트가 발생한다
+			$folder.ondragover = e => {
+				e.preventDefault();
+			};
 		})
 
+		if ($lastFolder) while ($oldFolder = $lastFolder.nextElementSibling) {
+			this.folder.removeChild($oldFolder);
+		}
+
+		// tasks
 		if (!this.currentFolder) return;
 
-		this.tasks.innerHTML = '';
-		this.currentFolder.getTasks().forEach(task => {
-			const li = el('li');
-			const { title, isCompleted } = task.getInfo();
+		let tasks = this.currentFolder.getTasks();
+		let $oldTask;
+		let $lastTask = null;
 
-			li.innerHTML = `${isCompleted ? 'o' : 'x'} ${title}`;
-			li.addEventListener('click', () => {
-				task.toggle();
-				this.render();
+		if (tasks.length == 0) {
+			while ($oldTask = this.$tasks.firstElementChild) {
+				this.$tasks.removeChild($oldTask);
+				this.$tasksMemory.push($oldTask);
+			}
+		} else {
+			$oldTask = this.$tasks.firstElementChild;
+
+			this.currentFolder.getTasks().forEach(task => {
+				let $task;
+				if ($oldTask) {
+					$task = $oldTask;
+					$oldTask = $oldTask.nextElementSibling;
+				} else {
+					$task = this.$tasksMemory.length ? this.$tasksMemory.pop() : el('li');
+					this.$tasks.appendChild($task);
+				}
+				$lastTask = $task;
+				const { title, isCompleted } = task.getInfo();
+				$task.setAttribute('draggable', true);
+				$task.innerHTML = `${isCompleted ? 'o' : 'x'} ${title}`;
+				$task.ondragstart = e => {
+
+					// closure 를 이용하기
+					$moveTask = task;
+				}
+				$task.onclick = e => {
+					task.toggle();
+					this.render();
+				}
+
 			})
-			this.tasks.appendChild(li);
-		})
 
-
+			if ($lastTask) {
+				while ($oldTask = $lastTask.nextElementSibling) {
+					this.$tasks.removeChild($oldTask);
+					this.$tasksMemory.push($oldTask);
+				}
+			}
+		}
 	}
-
-
 }
 
 
-new DomRenderer(document.body, new App());
+new DomRenderer(document.querySelector('main'), new App());
+
+
+//const [folderInput, taskInput] = Array.from(document.querySelectorAll('input'))
+
+//folderInput.value = "할일1";
+
+//const event = new KeyboardEvent('keyup', {
+//	key: 'Enter',
+//	code: 'Enter'
+//});
+
+//const make = input => title => {
+//	input.value = title;
+//	input.dispatchEvent(event)
+//}
+
+//const makeFolder = make(folderInput);
+//const makeTask = make(taskInput);
+
+//makeFolder('할일')
+//makeFolder('할일1')
+//makeFolder('할일2')
+//makeFolder('할일3')
+
+//makeTask('수똥이랑 놀기')
+//makeTask('수똥이랑 공부하기')
+//makeTask('수똥이랑 밥먹기')
+
+//const [folder1, folder2, folder3, folder4] = Array.from(document.querySelectorAll('nav > ul > li'));
+
+//folder2.click();
+
+//makeTask('수똥이랑 놀러가기')
+//makeTask('수똥이랑 쇼핑하기')
+//makeTask('수똥이랑 물먹기')
