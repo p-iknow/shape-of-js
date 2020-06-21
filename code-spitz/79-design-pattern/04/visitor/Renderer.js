@@ -24,6 +24,15 @@ const Renderer = class {
 			}
 		})
 	}
+	_folder(task) {
+		throw 'overrided';
+	}
+	_parent(v, task) {
+		throw 'overrided';
+	}
+	_task(v, task) {
+		throw 'overrided';
+	}
 }
 
 export const DomRenderer = class extends Renderer {
