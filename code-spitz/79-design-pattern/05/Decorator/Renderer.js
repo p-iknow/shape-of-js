@@ -1,3 +1,5 @@
+import { TaskView } from "./TaskView.js";
+
 const el = (tag, attr = {}) => Object.entries(attr).reduce((el, v) => {
 
 	const attrKey = v[0];
@@ -16,7 +18,7 @@ export const Renderer = class {
 	}
 	render({ task, list }) {
 		this.processor.folder(task);
-		this.processor.parent();
+		this.processor.parent(task);
 		this.subTask(list);
 	}
 	subTask(list) {
@@ -24,7 +26,7 @@ export const Renderer = class {
 			this.processor.task(task);
 			if (list.length === 0) return;
 			else {
-				this.processor.parent();
+				this.processor.parent(task);
 				this.subTask(list);
 			}
 		})
@@ -34,6 +36,13 @@ export const Renderer = class {
 Renderer.Processor = class {
 	constructor() {
 		this.prop = Object.create(null);
+		this._taskView = TaskView.base;
+	}
+	taskView(...taskViews) {
+		taskViews.forEach(taskView => this._taskView = taskView.set(this._taskView));
+	}
+	taskRender(task) {
+		return this._taskView.task(this.prop.parentTask, task);
 	}
 	folder(task) {
 		throw 'overrided';
@@ -46,11 +55,11 @@ Renderer.Processor = class {
 	}
 }
 
-
 export const Dom = class extends Renderer.Processor {
 	constructor(parent) {
 		super();
 		this._p = parent;
+		//this.taskView = TaskView.base;
 	}
 	folder({ _title: title }) {
 		const parent = document.querySelector(this._p);
@@ -58,15 +67,16 @@ export const Dom = class extends Renderer.Processor {
 		parent.appendChild(el('h1', { innerHTML: title }));
 		this.prop.parent = parent;
 	}
-	parent() {
+	parent(task) {
 		const ul = el('ul');
 		this.prop.parent.appendChild(ul);
 		this.prop.parent = ul;
+		this.prop.parentTask = task;
 
 	}
-	task({ _title: title }) {
-		const li = el('li');
-		li.appendChild(el('div', { innerHTML: title }));
+	task(task) {
+		const li = el('li', { innerHTML: `<div>${this.taskRender(task)}</div>` });
+		//li.appendChild(el('div', { innerHTML: title }));
 		this.prop.parent.appendChild(li);
 		this.prop.parent = li;
 	}
