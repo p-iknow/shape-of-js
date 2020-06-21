@@ -41,4 +41,4 @@ const DomRenderer = class {
 		return parent;
 	}
 }
-export default;
+export default DomRenderer;
