@@ -10,65 +10,71 @@ const el = (tag, attr = {}) => Object.entries(attr).reduce((el, v) => {
 	return el;
 }, document.createElement(tag));
 
-const Renderer = class {
+export const Renderer = class {
+	constructor(visitor) {
+		this.visitor = visitor;
+	}
 	render({ task, list }) {
-		const v = this._folder(task);
-		this.subTask(this._parent(v, task), list);
+		const v = this.visitor.folder(task);
+		this.subTask(this.visitor.parent(v, task), list);
 	}
 	subTask(parent, list) {
 		list.forEach(({ task, list }) => {
-			const v = this._task(parent, task);
+			const v = this.visitor.task(parent, task);
 			if (list.length === 0) return;
 			else {
-				this.subTask(this._parent(v, this), list);
+				this.subTask(this.visitor.parent(v, this), list);
 			}
 		})
 	}
-	_folder(task) {
+}
+
+const Visitor = class {
+	folder(task) {
 		throw 'overrided';
 	}
-	_parent(v, task) {
+	parent(v, task) {
 		throw 'overrided';
 	}
-	_task(v, task) {
+	task(v, task) {
 		throw 'overrided';
 	}
 }
 
-export const DomRenderer = class extends Renderer {
+export const DomVisitor = class extends Visitor {
 	constructor(parent) {
 		super();
 		this._p = parent;
 	}
-	_folder({ _title: title }) {
+	folder({ _title: title }) {
 		const parent = document.querySelector(this._p);
 		parent.innerHTML = '';
 		parent.appendChild(el('h1', { innerHTML: title }));
 		return parent;
 	}
-	_parent(v, _) {
+	parent(v, _) {
 		return v.appendChild(el('ul'));
 	}
-	_task(v, { _title: title }) {
+	task(v, { _title: title }) {
 		const li = v.appendChild(el('li'));
 		li.appendChild(el('div', { innerHTML: title }));
 		return li;
 	}
 }
 
-export const ConsoleRenderer = class extends Renderer {
+export const ConsoleVisitor = class extends Visitor {
 	constructor() {
 		super();
 	}
-	_folder({ _title: title }) {
+	folder({ _title: title }) {
 		console.log('-----------------------');
 		console.log('folder:', title);
 		return ' ';
 	}
-	_parent(v, list) {
+	parent(v, list) {
 		return v;
 	}
-	_task(v, { _title: title }) {
+	task(v, { _title: title }) {
 		console.log(v + title);
 		return v + '-';
 	}
