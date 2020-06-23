@@ -15,8 +15,14 @@ const el = (tag, attr = {}) => Object.entries(attr).reduce((el, v) => {
 export const Renderer = class {
 	constructor(processor) {
 		this.processor = processor;
+		processor.addObserver(this);
+	}
+	observe(type) { type == 'RE_RENDER' && this.reRender(); }
+	reRender() {
+		this.oldList && this.render(this.oldList);
 	}
 	render({ task, list }) {
+		this.oldList = list;
 		this.processor.folder(task);
 		this.processor.parent(task);
 		this.subTask(list);
@@ -38,10 +44,14 @@ Renderer.Processor = class {
 		this.prop = Object.create(null);
 		this._taskView = TaskView.base;
 	}
+	observe(msg) { this.notify(msg); }
+	addObserver(observer) { this.observer = observer }
+	notify(msg) { this.observer && this.observer.observe(msg) }
 	taskView(...taskViews) {
 		taskViews.forEach(taskView => this._taskView = taskView.set(this._taskView));
 	}
 	taskRender(task) {
+		this._taskView.addObserver(this);
 		return this._taskView.task(this.prop.parentTask, task);
 	}
 	folder(task) {

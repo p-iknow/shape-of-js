@@ -13,6 +13,12 @@ export const TaskView = class {
 }
 
 TaskView.base = new (class extends TaskView {
+	addObserver(v) {
+		this.observer = v;
+	}
+	notify(msg) {
+		this.observer && this.observer.observe(msg);
+	}
 	_task(parent, task) {
 		return this.result;
 	}
@@ -35,5 +41,17 @@ export const Member = class extends TaskView {
 		return this.result.replace(
 			this._reg, '<a href="member/$1">$1</a>'
 		)
+	}
+}
+
+export const Remove = class extends TaskView {
+	_task(parent, task) {
+		const id = Remove.id++;
+		Remove[id] = () => {
+			delete Remove[id];
+			parent.remove(task);
+			this.notify('RE_RENDER');
+		}
+		return this.result + `<a onclick="Remove[${id}]()">X</a>`;
 	}
 }
